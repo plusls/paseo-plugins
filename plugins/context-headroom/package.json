@@ -1,0 +1,34 @@
+{
+  "name": "context-headroom",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Paseo 插件：在 composer 显示当前 agent 的上下文余量",
+  "files": [
+    "paseo-plugin.json",
+    "OVERVIEW.md",
+    "OVERVIEW.*.md",
+    "index.client.tsx",
+    "index.server.ts",
+    "client/",
+    "server/",
+    "shared/"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@getpaseo/client": "0.17.1",
+    "@getpaseo/plugin": "0.17.1",
+    "@types/node": "^26.6.6",
+    "@types/react": "~19.2.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.73.0",
+    "zod": "^4.4.3"
+  }
+}
