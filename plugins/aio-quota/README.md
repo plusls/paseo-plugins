@@ -2,6 +2,10 @@
 
 Paseo 插件：在侧边栏显示 AIO Coding Hub 的 Codex 额度。
 
+## 截图
+
+![侧边栏条目和 popover](docs/popover.png)
+
 ## 侧边栏
 
 - footer 只有一个 Codex 条目：单行显示名称、剩余百分比和细条，保持紧凑

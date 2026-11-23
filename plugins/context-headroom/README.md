@@ -2,6 +2,10 @@
 
 Paseo 插件：在 composer 显示当前 agent 的上下文余量。数值口径对齐 plusls 的 `~/.claude/statusline-command.sh`，v1 只精确支持 Claude Code provider。
 
+## 截图
+
+![composer pill 和 popover](docs/popover.png)
+
 ## 显示
 
 - composer pill 标题为「上下文余量」，label 形如 `70% · 72k`
