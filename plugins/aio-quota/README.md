@@ -72,7 +72,7 @@ daemon 所在机器需要能访问 AIO Coding Hub 的 usage 接口，默认地�
 ```bash
 pnpm install
 pnpm run lint
-pnpm --filter aio-quota run typecheck
+pnpm run typecheck
 pnpm --filter aio-quota pack --pack-destination "$PWD/dist"
 ```
 
