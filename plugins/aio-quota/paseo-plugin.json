@@ -1,0 +1,6 @@
+{
+  "id": "aio-quota",
+  "requirements": {
+    "paseo": ">=0.17.1"
+  }
+}
