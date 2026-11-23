@@ -173,13 +173,23 @@ settings:
 
 importers:
 
-  .: {}
-
-  plugins/aio-quota:
+  .:
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.5
         version: 9.39.5
+      eslint:
+        specifier: ^9.39.5
+        version: 9.39.5(supports-color@8.1.1)
+      eslint-plugin-react-hooks:
+        specifier: ^7.1.1
+        version: 7.1.1(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)
+      typescript-eslint:
+        specifier: ^8.73.0
+        version: 8.73.0(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
+
+  plugins/aio-quota:
+    devDependencies:
       '@getpaseo/plugin':
         specifier: 0.17.1
         version: 0.17.1(@getpaseo/client@0.17.1)(@getpaseo/protocol@0.17.1)(react-native@0.81.5(@babel/core@7.29.13(supports-color@8.1.1))(@types/react@19.2.18)(react@19.1.0)(supports-color@8.1.1))(react@19.1.0)(typescript@5.9.3)(zod@4.6.7)
@@ -192,12 +202,6 @@ importers:
       '@types/react':
         specifier: ~19.2.0
         version: 19.2.18
-      eslint:
-        specifier: ^9.39.5
-        version: 9.39.5(supports-color@8.1.1)
-      eslint-plugin-react-hooks:
-        specifier: ^7.1.1
-        version: 7.1.1(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)
       react:
         specifier: 19.1.0
         version: 19.1.0
@@ -207,18 +211,12 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
-      typescript-eslint:
-        specifier: ^8.73.0
-        version: 8.73.0(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
       zod:
         specifier: ^4.4.3
         version: 4.6.7
 
   plugins/context-headroom:
     devDependencies:
-      '@eslint/js':
-        specifier: ^9.39.5
-        version: 9.39.5
       '@getpaseo/client':
         specifier: 0.17.1
         version: 0.17.1
@@ -231,12 +229,6 @@ importers:
       '@types/react':
         specifier: ~19.2.0
         version: 19.2.18
-      eslint:
-        specifier: ^9.39.5
-        version: 9.39.5(supports-color@8.1.1)
-      eslint-plugin-react-hooks:
-        specifier: ^7.1.1
-        version: 7.1.1(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)
       react:
         specifier: 19.1.0
         version: 19.1.0
@@ -246,9 +238,6 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
-      typescript-eslint:
-        specifier: ^8.73.0
-        version: 8.73.0(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
       zod:
         specifier: ^4.4.3
         version: 4.6.7

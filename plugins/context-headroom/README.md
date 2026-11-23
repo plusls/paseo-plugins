@@ -73,7 +73,7 @@ paseo plugin install "/绝对路径/package"
 
 ```bash
 pnpm install
-pnpm --filter context-headroom run lint
+pnpm run lint
 pnpm --filter context-headroom run typecheck
 pnpm --filter context-headroom pack --pack-destination "$PWD/dist"
 ```

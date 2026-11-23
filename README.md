@@ -39,6 +39,8 @@ pnpm run lint
 pnpm run typecheck
 ```
 
+eslint 配置在根目录 `eslint.config.mjs`，统一检查两个插件；typecheck 使用各插件自己的 `tsconfig.json`。
+
 打包单个插件：
 
 ```bash
