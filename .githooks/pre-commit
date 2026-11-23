@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "pre-commit: 未找到 pnpm，无法运行 lint/typecheck" >&2
+  exit 1
+fi
+
+echo "pre-commit: 运行 lint 和 typecheck"
+pnpm run lint
+pnpm run typecheck

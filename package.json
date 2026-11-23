@@ -1,0 +1,10 @@
+{
+  "name": "paseo-plugins",
+  "private": true,
+  "packageManager": "pnpm@12.21.0",
+  "scripts": {
+    "hooks:install": "git config --local core.hooksPath .githooks",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm -r run typecheck"
+  }
+}
