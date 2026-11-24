@@ -8,6 +8,7 @@ Paseo 插件集合，使用 pnpm workspace 管理。每个插件仍然独立安�
 | --- | --- |
 | [aio-quota](plugins/aio-quota/README.md) | 在侧边栏显示 AIO Coding Hub 的 Codex 额度 |
 | [context-headroom](plugins/context-headroom/README.md) | 在 composer 显示当前 agent 的上下文余量 |
+| [session-location](plugins/session-location/README.md) | 在 composer 显示当前 agent 会话所在的目录 |
 
 ## 安装
 
@@ -16,6 +17,7 @@ Paseo 插件集合，使用 pnpm workspace 管理。每个插件仍然独立安�
 ```bash
 paseo plugin install github:plusls/paseo-plugins:plugins/aio-quota
 paseo plugin install github:plusls/paseo-plugins:plugins/context-headroom
+paseo plugin install github:plusls/paseo-plugins:plugins/session-location
 ```
 
 把 `plusls/paseo-plugins` 换成实际的 GitHub owner 和仓库名。Git 安装会克隆整个仓库，再使用 `:plugins/<name>` 指定的插件子目录。私有仓库需要 daemon 所在机器能访问该仓库。
@@ -25,6 +27,7 @@ paseo plugin install github:plusls/paseo-plugins:plugins/context-headroom
 ```bash
 paseo plugin install "$PWD/plugins/aio-quota"
 paseo plugin install "$PWD/plugins/context-headroom"
+paseo plugin install "$PWD/plugins/session-location"
 ```
 
 同一 daemon 已安装同 ID 插件时先执行 `paseo plugin remove <id>`。移除目录插件只删除配置，不删除源码目录。
@@ -39,13 +42,14 @@ pnpm run lint
 pnpm run typecheck
 ```
 
-eslint 配置和 `tsconfig.json` 都在仓库根目录，统一检查两个插件。
+eslint 配置和 `tsconfig.json` 都在仓库根目录，统一检查三个插件。
 
 打包单个插件：
 
 ```bash
 pnpm --filter aio-quota pack --pack-destination "$PWD/dist"
 pnpm --filter context-headroom pack --pack-destination "$PWD/dist"
+pnpm --filter session-location pack --pack-destination "$PWD/dist"
 ```
 
 产物在 `dist/<插件名>-<version>.tgz`。插件没有运行时依赖，Paseo 直接编译 TypeScript，不需要额外的构建步骤。
@@ -71,6 +75,7 @@ paseo-plugins/
   plugins/
     aio-quota/
     context-headroom/
+    session-location/
 ```
 
 每个插件目录包含自己的 `paseo-plugin.json`、`package.json`、TypeScript 入口和 README；根目录只放 workspace、CI 和公共开发配置。
