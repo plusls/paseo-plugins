@@ -192,6 +192,11 @@ export function HumanTokensScreen({ theme, layout }: PluginScreenProps) {
         color: theme.colors.foregroundMuted,
         fontSize: compact ? 11 : 12,
       },
+      legend: {
+        color: theme.colors.foregroundMuted,
+        fontSize: 10,
+        marginTop: 2,
+      },
       card: {
         backgroundColor: theme.colors.surface1,
         borderRadius: 12,
@@ -326,8 +331,9 @@ export function HumanTokensScreen({ theme, layout }: PluginScreenProps) {
     >
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.title}>人类 token</Text>
-          <Text style={styles.subtitle}>AI 时代的阅读与输入账单</Text>
+          <Text style={styles.title}>huken</Text>
+          <Text style={styles.subtitle}>AI 吃 token，人类烧 huken</Text>
+          <Text style={styles.legend}>↓ AI 输出读入 · ↑ 人类输入</Text>
         </View>
         <Pressable
           accessibilityRole="button"
@@ -427,7 +433,7 @@ export function HumanTokensScreen({ theme, layout }: PluginScreenProps) {
           {metric("切换 agent", String(lifetime.switches))}
           {metric("消息数", String(lifetime.messages))}
           <Text style={styles.note}>
-            token 按字符数估算，用于比较趋势，不是模型的计费 token。
+            1 huken = 1 个字符，用于比较趋势，不是模型的计费 token。
             阅读时间按停留时间估算，不判断是否真的在看。
           </Text>
         </View>

@@ -11,12 +11,12 @@ export default function contribute(client: PluginClientContext) {
 
   const removeScreen = client.addScreen({
     id: "main",
-    title: "人类 token",
+    title: "huken",
     Component: HumanTokensScreen,
   });
   const removeSidebar = client.addSidebarFooterItem({
     id: "main",
-    title: "人类 token",
+    title: "huken",
     Component: HumanTokensSidebarItem,
   });
   const removePaste = installPasteListener();

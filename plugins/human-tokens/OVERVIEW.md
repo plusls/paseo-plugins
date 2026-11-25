@@ -1,5 +1,7 @@
 # human-tokens 设计说明
 
+显示名 huken，插件 ID 仍是 `human-tokens`。
+
 统计「AI 时代人类实际付出了多少」：读了多少 AI 输出、自己打了多少字、回看了多少、切换了多少次上下文。插件只在自己的界面里展示数据，不改时间线，不改 composer。
 
 ## 做什么
@@ -65,7 +67,7 @@ cache miss = missTokens / completedTokens
 - 扣除后仍达到 `PASTE_THRESHOLD` 的增量按粘贴或草稿恢复处理，不计输入
 - 剩余正增量计入 `typedChars`
 - 每个出现正增量的采样计一个 `SAMPLE_MS` 的 `activeTypingMs`
-- 负增量只重置基线，不产生负数
+- 增量为 0 或负数时只重置基线，不产生负数，同时清空还没用掉的粘贴额度，避免等长替换粘贴扣掉后面的真实输入
 
 native 没有 paste 事件，短粘贴（低于阈值）会被当成输入。这是已知误差。
 
@@ -97,7 +99,7 @@ native 没有 paste 事件，短粘贴（低于阈值）会被当成输入。这
 6. 记录活跃阅读/回看时间和当前 agent
 7. 每 `FLUSH_MS` 或停止插件时上传一批增量
 
-多个 composer item 可能同时挂载，采样器是插件级单例，不会重复计时。隐藏的 1x1 View 只用于 native 拿 fiber 根。
+采样宿主挂在侧边栏 footer item 上。即使宿主重复挂载，采样器也是插件级单例，不会重复计时。隐藏的 1x1 View 只用于 native 拿 fiber 根。
 
 ### 可见性
 
@@ -112,6 +114,8 @@ native 没有 paste 事件，短粘贴（低于阈值）会被当成输入。这
 
 超过 `STATE_TTL_MS` 没再出现且没有待上传变化的 state 会从内存删除。删除前保存覆盖快照；同一会话里这条消息再次出现时恢复 dwell、覆盖和 revisit。已完成的 bin 恢复后会直接按「离开很久再回来」处理，进入回看片段，而不是重新算首次阅读。
 
+文本版本变化时，旧 state 会从当前消息表移出。如果它还有没上传的变化，按 `(messageId, version)` 暂存在 detached 表里，等下一次上传 ACK 后再删除；同一版本重新出现时由恢复逻辑接管，避免同一份覆盖作为两个 state 重复上传。
+
 快照表有上限，按插入顺序淘汰最旧条目。插件重启或页面刷新后内存清空，只能依赖 daemon 的跨 session 推断来识别回看。
 
 ## 平台适配
@@ -124,16 +128,17 @@ Paseo 没有公开的时间线可见性 API，插件使用 host 实现细节：
 - `[data-testid="agent-chat-scroll"]`：滚动视口
 - `[data-message-id]`：`occurrenceKey` 缺失时的兜底行
 - 正文和 `occurrenceKey` 从 React fiber 的 `AssistantMessage` props 读取，不从 DOM 文本拼，避免把按钮、复制提示等 UI 文本算进去
+- DOM 上的 `__reactFiber$` 指针在 commit 后可能仍指向旧树；读 props 前先通过 `alternate` 和 `FiberRoot.current` 换到当前 fiber
 
 ### native
 
-- 从 composer item 的隐藏 View ref 拿 `__internalInstanceHandle`，再向上找到 root fiber
+- 从侧边栏 footer 里隐藏 1x1 View 的 ref 拿 `__internalInstanceHandle`，再向上找到 root fiber，取 HostRoot 的 `current` 作为遍历起点
 - 在 fiber 树里找 `testID="assistant-message"` 的 host，从祖先 `AssistantMessage` props 读正文、身份和 `phase`
-- 用 Fabric host 的 `unstable_getBoundingClientRect()` 拿窗口坐标
+- 用 Fabric host 的 `unstable_getBoundingClientRect()` 或 `getBoundingClientRect()` 拿窗口坐标
 - 优先用 `testID="agent-chat-scroll"` / `nativeID="agent-chat-scroll-native-virtualized"` 的 host 当视口；找不到时退到带滚动样式的祖先，再退到包含该行的最近祖先
 - 整棵树单次扫描有节点数上限；读不到位置时只打一条限频 warn，不写入错误数据
 
-这两套都是内部实现，Paseo 升级后可能失效。失效时的表现是「没有新数据」，不是把错误的位置记进库。
+这两套都是内部实现，Paseo 升级后可能失效。选择器、props 或 fiber 结构变化时通常表现为「没有新数据」；如果组件结构变了但坐标仍然有效，也可能得到错误的可见比例，升级后需要实测校准。
 
 ## 上传和存储
 

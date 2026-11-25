@@ -1,17 +1,19 @@
-# human-tokens
+# huken
 
-Paseo 插件：统计人类实际读到的 AI token、自己输入的字数、回读和上下文切换。
+Paseo 插件：huken（human token），统计人类实际读到的 AI token、自己输入的字数、回读和上下文切换。
+
+显示名是 huken，安装命令和插件 ID 仍是 `human-tokens`。
 
 ## 做什么
 
-- 侧边栏底部显示人类 token，右侧数字是今天的读入 token
+- 侧边栏底部用 ↓ / ↑ 显示累计读入和输入，以及 cache miss 比例；读速在明细页
 - 点击打开明细：人类输入、AI 产出、实际读入、读速、回读速度、输出速度、回读占比、重读次数、切换 agent、消息数
 - 7 天 / 30 天切换；每日首次阅读和回读的堆叠柱状图，以及单独的每日输入 token 柱状图
 - 今天卡片显示输入、读入、回读、重读和切换
 
 阅读估算只看已完成的 AI 回复在屏幕上停留了多久。快速滚过不会算读完，长消息按实际看到的部分累计；离开一会儿再回来看，会单独累计回读的内容和次数。插件不判断你是否真的在看，也不补算历史。
 
-token 按字符数估算，所有数字适合比较趋势，不是模型的计费 token。
+1 huken = 1 个字符，所有数字适合比较趋势，不是模型的计费 token。
 
 指标定义、采集模型、平台适配、合并规则和已知限制见 [OVERVIEW.md](OVERVIEW.md)。
 
@@ -62,10 +64,11 @@ paseo plugin reload human-tokens
 paseo plugin logs human-tokens
 ```
 
-web 端依赖 host 页面的 `data-testid` 和 React fiber props，native 端依赖 Fabric host instance 和组件 props。这些都是内部实现，Paseo 升级后可能失效；失效时不会写入错误的位置，只会没有新数据。
+web 端依赖 host 页面的 `data-testid` 和 React fiber props，native 端依赖 Fabric host instance 和组件 props。这些都是内部实现，Paseo 升级后可能失效；选择器或 props 变化时通常只会没有新数据，组件结构变化但坐标仍有效时可能得到错误的可见比例，升级后需要实测校准。
 
 ## 限制
 
+- cache hit 不可观测，界面只显示重读造成的 cache miss 比例
 - 阅读时长按字数和可见比例估算，不判断你是否真的在看
 - 只统计插件运行期间看到过的已完成 AI 回复；不补算历史，也不统计流式消息、工具调用和用户消息
 - native 端较短的粘贴可能被当成输入
