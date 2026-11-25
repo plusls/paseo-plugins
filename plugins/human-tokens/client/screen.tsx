@@ -392,7 +392,7 @@ export function HumanTokensScreen({ theme, layout }: PluginScreenProps) {
           <Text style={styles.sectionTitle}>人类用量账单</Text>
           {metric(
             "人类输入",
-            `${formatTokens(lifetime.typedChars)} tok`,
+            `${formatTokens(lifetime.typedChars)} huk`,
             "只算真实输入，粘贴不算",
           )}
           {metric(
@@ -402,7 +402,7 @@ export function HumanTokensScreen({ theme, layout }: PluginScreenProps) {
           )}
           {metric(
             "实际读入",
-            `${formatTokens(lifetime.readTokens)} tok`,
+            `${formatTokens(lifetime.readTokens)} huk`,
             `已读比例 ${formatPercent(lifetime.readTokens, lifetime.producedTokens)}`,
           )}
           {metric(
@@ -423,7 +423,7 @@ export function HumanTokensScreen({ theme, layout }: PluginScreenProps) {
           {metric(
             "回读占比",
             formatPercent(lifetime.missTokens, lifetime.completedTokens),
-            "回读的 token 占已读完内容的比例",
+            "回读内容占已读完内容的比例",
           )}
           {metric(
             "重读次数",
@@ -433,7 +433,7 @@ export function HumanTokensScreen({ theme, layout }: PluginScreenProps) {
           {metric("切换 agent", String(lifetime.switches))}
           {metric("消息数", String(lifetime.messages))}
           <Text style={styles.note}>
-            1 huken = 1 个字符，用于比较趋势，不是模型的计费 token。
+            huk 是 huken 的缩写，1 huk = 1 个字符，用于比较趋势，不是模型的计费 token。
             阅读时间按停留时间估算，不判断是否真的在看。
           </Text>
         </View>
@@ -447,19 +447,19 @@ export function HumanTokensScreen({ theme, layout }: PluginScreenProps) {
               <Text style={styles.todayValue}>
                 {formatTokens(today.typedChars)}
               </Text>
-              <Text style={styles.muted}>输入 tok</Text>
+              <Text style={styles.muted}>输入 huk</Text>
             </View>
             <View style={styles.todayItem}>
               <Text style={styles.todayValue}>
                 {formatTokens(today.readTokens)}
               </Text>
-              <Text style={styles.muted}>读入 tok</Text>
+              <Text style={styles.muted}>读入 huk</Text>
             </View>
             <View style={styles.todayItem}>
               <Text style={styles.todayValue}>
                 {formatTokens(today.missTokens)}
               </Text>
-              <Text style={styles.muted}>回读 tok</Text>
+              <Text style={styles.muted}>回读 huk</Text>
             </View>
             <View style={styles.todayItem}>
               <Text style={styles.todayValue}>{String(today.revisits)}</Text>
@@ -475,7 +475,7 @@ export function HumanTokensScreen({ theme, layout }: PluginScreenProps) {
 
       {hasData ? (
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>每日阅读 token</Text>
+          <Text style={styles.sectionTitle}>每日阅读 huken</Text>
           <DailyChart
             days={daily}
             theme={theme}
@@ -498,7 +498,7 @@ export function HumanTokensScreen({ theme, layout }: PluginScreenProps) {
 
       {hasData ? (
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>每日输入 token</Text>
+          <Text style={styles.sectionTitle}>每日输入 huken</Text>
           <DailyChart
             days={daily}
             theme={theme}

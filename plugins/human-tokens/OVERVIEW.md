@@ -14,7 +14,7 @@
 
 ## 不做什么
 
-- 不接 tokenizer。token 在这里等于 Unicode 码点，所有 tok 数字只适合比较趋势，不是模型的 billing token
+- 不接 tokenizer。所有 huk/tok 数字只适合比较趋势，不是模型的 billing token
 - 不检测 AFK、眼球运动或系统空闲。人离开但窗口还在前台时，停留时间仍会累计
 - 不补算历史消息。只有插件运行期间真正挂载并进入视口的消息才会被记录
 - 不区分「看完一遍」和「扫一眼记住」。完成判定基于按字数估算的阅读时长
@@ -23,9 +23,11 @@
 
 ## 指标定义
 
-### token 和 chars
+### huken、token 和 chars
 
-`chars` 是消息正文的 Unicode 码点数，代理对算一个码点。`token` 在本文档和界面里都等于 `chars`。每个 bin 的字符数按 `chars / BIN_COUNT` 均分，`BIN_COUNT` 段加起来等于 `chars`，不要求整除。
+`chars` 是消息正文的 Unicode 码点数，代理对算一个码点。界面里人类侧的读入和输入量用 `huken` 表示，缩写 `huk`；AI 产出沿用 `token` 的表述。三者在本插件里都按字符数计，1 huk = 1 个字符。
+
+每个 bin 的字符数按 `chars / BIN_COUNT` 均分，`BIN_COUNT` 段加起来等于 `chars`，不要求整除。
 
 ### estimateMs 和 dwellMs
 
@@ -45,13 +47,13 @@
 
 客户端内部字段对应关系：`reviewActive` 表示 bin 当前是否处在回看片段，`reviewDwellMs` 是本片段累计停留（片段开始时清零），`reviewCoverage` 是历史最大回看覆盖。只有 `reviewCoverage` 会上传。
 
-`missTokens` 就是回看覆盖折算出的 token。用户重读说明人类这边的 cache 没有命中；已经命中、无需重读的部分不可观测，所以界面只报 cache miss 比例：
+`missTokens` 就是回看覆盖折算出的读入量，界面用 `huk` 表示。用户重读说明人类这边的 cache 没有命中；已经命中、无需重读的部分不可观测，所以界面只报 cache miss 比例：
 
 ```text
 cache miss = missTokens / completedTokens
 ```
 
-同一个 bin 的回看覆盖取历史最大值，所以反复回看不会把 miss token 重复累加；次数由 `revisits` 单独统计。
+同一个 bin 的回看覆盖取历史最大值，所以反复回看不会把 miss 量重复累加；次数由 `revisits` 单独统计。
 
 ### revisits
 

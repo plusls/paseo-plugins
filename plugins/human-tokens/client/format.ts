@@ -22,7 +22,7 @@ export function formatRate(tokens: number, ms: number): string {
   }
   const rate = tokens / (ms / 1000);
   if (!Number.isFinite(rate)) return "-";
-  return `${rate.toFixed(1)} tok/s`;
+  return `${rate.toFixed(1)} huk/s`;
 }
 
 export function formatPercent(part: number, whole: number): string {
