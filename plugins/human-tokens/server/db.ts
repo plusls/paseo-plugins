@@ -12,8 +12,10 @@ import {
 import {
   BIN_COUNT,
   REVIEW_INFER_COVERAGE,
+  SLOTS_PER_DAY,
   type Daily,
   type IngestInput,
+  type SlotStats,
   type StatsOutput,
   type Totals,
 } from "../shared/protocol";
@@ -75,6 +77,19 @@ export function openDatabase(): HumanTokensDb {
       PRIMARY KEY (day, device_id)
     );
 
+    CREATE TABLE IF NOT EXISTS slot_stats (
+      day TEXT NOT NULL,
+      slot INTEGER NOT NULL,
+      device_id TEXT NOT NULL,
+      read_tokens REAL NOT NULL DEFAULT 0,
+      miss_tokens REAL NOT NULL DEFAULT 0,
+      typed_chars INTEGER NOT NULL DEFAULT 0,
+      active_read_ms INTEGER NOT NULL DEFAULT 0,
+      active_review_ms INTEGER NOT NULL DEFAULT 0,
+      active_typing_ms INTEGER NOT NULL DEFAULT 0,
+      PRIMARY KEY (day, slot, device_id)
+    );
+
     CREATE TABLE IF NOT EXISTS ingest_batch (
       batch_id TEXT PRIMARY KEY,
       applied_at TEXT NOT NULL
@@ -84,6 +99,11 @@ export function openDatabase(): HumanTokensDb {
   // 批次去重只需要覆盖客户端重试窗口；保留 30 天足够
   db.prepare("DELETE FROM ingest_batch WHERE applied_at < ?").run(
     new Date(Date.now() - 30 * DAY_MS).toISOString(),
+  );
+
+  // 5 分钟桶只用于当天曲线，保留 90 天；更早的删掉，日汇总仍由 day_stats 保存
+  db.prepare("DELETE FROM slot_stats WHERE day < ?").run(
+    new Date(Date.now() - 90 * DAY_MS).toISOString().slice(0, 10),
   );
 
   return db;
@@ -272,6 +292,33 @@ export function ingest(
       input.switches,
     );
 
+    const slot = input.slot;
+    if (slot !== undefined) {
+      db.prepare(`
+        INSERT INTO slot_stats (
+          day, slot, device_id, read_tokens, miss_tokens, typed_chars,
+          active_read_ms, active_review_ms, active_typing_ms
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(day, slot, device_id) DO UPDATE SET
+          read_tokens = slot_stats.read_tokens + excluded.read_tokens,
+          miss_tokens = slot_stats.miss_tokens + excluded.miss_tokens,
+          typed_chars = slot_stats.typed_chars + excluded.typed_chars,
+          active_read_ms = slot_stats.active_read_ms + excluded.active_read_ms,
+          active_review_ms = slot_stats.active_review_ms + excluded.active_review_ms,
+          active_typing_ms = slot_stats.active_typing_ms + excluded.active_typing_ms
+      `).run(
+        input.day,
+        slot,
+        input.deviceId,
+        dayReadTokens,
+        dayMissTokens,
+        input.typedChars,
+        input.activeReadMs,
+        input.activeReviewMs,
+        input.activeTypingMs,
+      );
+    }
+
     db.prepare(
       "INSERT INTO ingest_batch (batch_id, applied_at) VALUES (?, ?)",
     ).run(input.batchId, nowIso);
@@ -442,5 +489,50 @@ export function queryStats(
     );
   }
 
-  return { lifetime, today, daily };
+  const slotRows = db
+    .prepare(`
+      SELECT
+        slot,
+        SUM(read_tokens) AS read_tokens,
+        SUM(miss_tokens) AS miss_tokens,
+        SUM(typed_chars) AS typed_chars,
+        SUM(active_read_ms) AS active_read_ms,
+        SUM(active_review_ms) AS active_review_ms,
+        SUM(active_typing_ms) AS active_typing_ms
+      FROM slot_stats
+      WHERE day = ?
+      GROUP BY slot
+    `)
+    .all(input.today);
+
+  const slotsBySlot = new Map<number, SlotStats>();
+  for (const row of slotRows) {
+    const slot = toInt(row.slot);
+    slotsBySlot.set(slot, {
+      slot,
+      readTokens: toNumber(row.read_tokens),
+      missTokens: toNumber(row.miss_tokens),
+      typedChars: toInt(row.typed_chars),
+      activeReadMs: toInt(row.active_read_ms),
+      activeReviewMs: toInt(row.active_review_ms),
+      activeTypingMs: toInt(row.active_typing_ms),
+    });
+  }
+
+  const slots: SlotStats[] = [];
+  for (let slot = 0; slot < SLOTS_PER_DAY; slot += 1) {
+    slots.push(
+      slotsBySlot.get(slot) ?? {
+        slot,
+        readTokens: 0,
+        missTokens: 0,
+        typedChars: 0,
+        activeReadMs: 0,
+        activeReviewMs: 0,
+        activeTypingMs: 0,
+      },
+    );
+  }
+
+  return { lifetime, today, daily, slots };
 }

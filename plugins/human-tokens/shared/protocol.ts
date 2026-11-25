@@ -33,6 +33,10 @@ export const MAX_MESSAGES_PER_BATCH = 200;
 export const STATE_TTL_MS = 30 * 60_000;
 
 export const daySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+/** 时间桶粒度；图表按这个粒度采集和显示 */
+export const SLOT_MS = 5 * 60_000;
+export const SLOTS_PER_DAY = (24 * 60 * 60_000) / SLOT_MS;
+export const slotSchema = z.number().int().min(0).max(SLOTS_PER_DAY - 1);
 
 /** 0-255 的 BIN_COUNT 段覆盖/回看覆盖率 */
 export const coverageSchema = z.array(z.number().int().min(0).max(255)).length(BIN_COUNT);
@@ -71,6 +75,11 @@ export const ingestInputSchema = z.object({
    * 上传失败或长时间离线时，积压的活动会记到恢复当天。
    */
   day: daySchema,
+  /**
+   * 客户端本地 5 分钟桶，批次构建时取；同一天内按这个桶归属增量。
+   * 旧客户端没有这个字段；收到时只写日汇总和消息覆盖，不写 5 分钟桶。
+   */
+  slot: slotSchema.optional(),
   messages: z.array(messageReadingSchema).max(MAX_MESSAGES_PER_BATCH),
   /** 以下都是本批次增量 */
   activeReadMs: z.number().int().min(0),
@@ -121,10 +130,22 @@ export const dailySchema = z.object({
   switches: z.number(),
 });
 
+/** 一个 5 分钟桶；没有活动的 slot 也会补 0，方便直接画全天曲线 */
+export const slotStatsSchema = z.object({
+  slot: slotSchema,
+  readTokens: z.number(),
+  missTokens: z.number(),
+  typedChars: z.number(),
+  activeReadMs: z.number(),
+  activeReviewMs: z.number(),
+  activeTypingMs: z.number(),
+});
+
 export const statsOutputSchema = z.object({
   lifetime: totalsSchema,
   today: totalsSchema,
   daily: z.array(dailySchema),
+  slots: z.array(slotStatsSchema),
 });
 
 export const statsRpc = defineRpc({
@@ -137,4 +158,5 @@ export type IngestInput = z.infer<typeof ingestInputSchema>;
 export type MessageReading = z.infer<typeof messageReadingSchema>;
 export type Totals = z.infer<typeof totalsSchema>;
 export type Daily = z.infer<typeof dailySchema>;
+export type SlotStats = z.infer<typeof slotStatsSchema>;
 export type StatsOutput = z.infer<typeof statsOutputSchema>;

@@ -33,7 +33,7 @@ import {
   type SavedCoverage,
   type ScanRow,
 } from "./model";
-import { localDay } from "./time";
+import { localDay, localSlot } from "./time";
 
 /**
  * 采样器是插件级单例：多个 composer item 可能同时挂载，
@@ -329,11 +329,14 @@ function runSampler(
 
     // 同步取出增量；上传期间新产生的数据进新的累加器，不会被这一批吞掉
     const taken = takeActivity();
+    // 日期和桶必须来自同一个时刻，否则跨午夜构建批次时可能把桶写到昨天/今天错位
+    const now = new Date();
     const input: IngestInput = {
       batchId: randomId("b"),
       sessionId: SESSION_ID,
       deviceId: deps.deviceId,
-      day: localDay(),
+      day: localDay(now),
+      slot: localSlot(now),
       messages: entries.map((entry) => ({
         messageId: entry.state.messageId,
         version: entry.state.version,

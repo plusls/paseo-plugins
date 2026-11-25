@@ -45,6 +45,42 @@ interface WebPasteEvent {
   readonly clipboardData: { getData(type: string): string } | null;
 }
 
+interface WebWheelEvent {
+  readonly deltaY: number;
+  /** DOM_DELTA_PIXEL=0、DOM_DELTA_LINE=1、DOM_DELTA_PAGE=2 */
+  readonly deltaMode: number;
+  readonly clientX: number;
+  preventDefault(): void;
+}
+
+interface WebWheelElement extends WebElement {
+  addEventListener(
+    type: "wheel",
+    listener: (event: WebWheelEvent) => void,
+    options?: { passive?: boolean },
+  ): void;
+  removeEventListener(
+    type: "wheel",
+    listener: (event: WebWheelEvent) => void,
+  ): void;
+}
+
+interface WebKeyboardEvent {
+  readonly key: string;
+  preventDefault(): void;
+}
+
+interface WebKeyboardElement extends WebElement {
+  addEventListener(
+    type: "keydown",
+    listener: (event: WebKeyboardEvent) => void,
+  ): void;
+  removeEventListener(
+    type: "keydown",
+    listener: (event: WebKeyboardEvent) => void,
+  ): void;
+}
+
 interface WebDocument {
   readonly visibilityState: string;
   readonly location: { href: string };
@@ -249,6 +285,65 @@ export function webIsForeground(): boolean {
   if (Platform.OS !== "web") return false;
   // 同一设备开多个窗口时只有聚焦窗口计时，避免活动时间翻倍
   return document.visibilityState === "visible" && document.hasFocus();
+}
+
+/**
+ * React Native Web 的 View 没有 onWheel，直接在 DOM 节点上监听。
+ * 必须 passive: false，否则 preventDefault 无法阻止页面滚动。
+ * handler 返回是否消费了这次滚轮；到达缩放边界时返回 false，放行页面滚动。
+ * native 返回 no-op，缩放按钮仍然可用。
+ */
+export function addWheelZoom(
+  node: unknown,
+  handler: (deltaY: number, offsetX: number) => boolean,
+): () => void {
+  if (Platform.OS !== "web" || !node) return () => {};
+  const element = node as WebWheelElement;
+  if (
+    typeof element.addEventListener !== "function" ||
+    typeof element.removeEventListener !== "function" ||
+    typeof element.getBoundingClientRect !== "function"
+  ) {
+    return () => {};
+  }
+  const listener = (event: WebWheelEvent): void => {
+    // Firefox 可能按行或按页给 deltaY；先换算成像素，统一后面的累积阈值
+    const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 400 : 1;
+    const deltaY = event.deltaY * unit;
+    if (deltaY === 0) return;
+    const handled = handler(
+      deltaY,
+      event.clientX - element.getBoundingClientRect().left,
+    );
+    if (handled) event.preventDefault();
+  };
+  element.addEventListener("wheel", listener, { passive: false });
+  return () => element.removeEventListener("wheel", listener);
+}
+
+/**
+ * web 的键盘选择：滑块聚焦后左右方向键切换 5 分钟。
+ * native 走 accessibilityActions，不需要这个监听。
+ */
+export function addKeySelect(
+  node: unknown,
+  handler: (delta: number) => boolean,
+): () => void {
+  if (Platform.OS !== "web" || !node) return () => {};
+  const element = node as WebKeyboardElement;
+  if (
+    typeof element.addEventListener !== "function" ||
+    typeof element.removeEventListener !== "function"
+  ) {
+    return () => {};
+  }
+  const listener = (event: WebKeyboardEvent): void => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    const handled = handler(event.key === "ArrowRight" ? 1 : -1);
+    if (handled) event.preventDefault();
+  };
+  element.addEventListener("keydown", listener);
+  return () => element.removeEventListener("keydown", listener);
 }
 
 /** 只在 web 安装；native 返回 no-op，由输入增量阈值兜底 */
