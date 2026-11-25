@@ -4,6 +4,10 @@ Paseo 插件：huken（human token），统计人类实际读到的 AI 内容、
 
 显示名是 huken，安装命令和插件 ID 仍是 `human-tokens`。
 
+## 截图
+
+<img src="docs/huken.png" width="360" alt="huken 今天的汇总和按 5 分钟图">
+
 ## 做什么
 
 - 侧边栏底部用 ↓ / ↑ 显示累计读入和输入，以及 cache miss 比例；读速在明细页
