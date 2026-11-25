@@ -6,7 +6,9 @@ Paseo 插件：huken（human token），统计人类实际读到的 AI 内容、
 
 ## 截图
 
-<img src="docs/huken.png" width="360" alt="huken 今天的汇总和按 5 分钟图">
+<img src="docs/huken.png" width="360" alt="huken 的汇总、效率、行为和今天卡片">
+<br>
+<img src="docs/slots.png" width="360" alt="huken 今天按 5 分钟的读入和输入图，以及每日阅读和输入图">
 
 ## 做什么
 
