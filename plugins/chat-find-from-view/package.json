@@ -1,0 +1,13 @@
+{
+  "name": "chat-find-from-view",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Paseo 插件：聊天内查找从当前视口的第一条可见消息开始",
+  "files": [
+    "paseo-plugin.json",
+    "OVERVIEW.md",
+    "README.md",
+    "index.client.tsx",
+    "client/"
+  ]
+}

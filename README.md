@@ -7,6 +7,7 @@ Paseo 插件集合，使用 pnpm workspace 管理。每个插件仍然独立安�
 | 目录 | 说明 |
 | --- | --- |
 | [aio-quota](plugins/aio-quota/README.md) | 在侧边栏显示 AIO Coding Hub 的 Codex 额度 |
+| [chat-find-from-view](plugins/chat-find-from-view/README.md) | 聊天内 Ctrl+F 从当前视口的第一条可见消息开始查找 |
 | [context-headroom](plugins/context-headroom/README.md) | 在 composer 显示当前 agent 的上下文余量 |
 | [human-tokens](plugins/human-tokens/README.md) | 统计人类实际读到的 AI token、输入、回读和上下文切换 |
 | [session-location](plugins/session-location/README.md) | 在 composer 显示当前 agent 会话所在的目录 |
@@ -17,6 +18,7 @@ Paseo 插件集合，使用 pnpm workspace 管理。每个插件仍然独立安�
 
 ```bash
 paseo plugin install github:plusls/paseo-plugins:plugins/aio-quota
+paseo plugin install github:plusls/paseo-plugins:plugins/chat-find-from-view
 paseo plugin install github:plusls/paseo-plugins:plugins/context-headroom
 paseo plugin install github:plusls/paseo-plugins:plugins/human-tokens
 paseo plugin install github:plusls/paseo-plugins:plugins/session-location
@@ -28,6 +30,7 @@ paseo plugin install github:plusls/paseo-plugins:plugins/session-location
 
 ```bash
 paseo plugin install "$PWD/plugins/aio-quota"
+paseo plugin install "$PWD/plugins/chat-find-from-view"
 paseo plugin install "$PWD/plugins/context-headroom"
 paseo plugin install "$PWD/plugins/human-tokens"
 paseo plugin install "$PWD/plugins/session-location"
@@ -51,6 +54,7 @@ eslint 配置和 `tsconfig.json` 都在仓库根目录，统一检查所有插�
 
 ```bash
 pnpm --filter aio-quota pack --pack-destination "$PWD/dist"
+pnpm --filter chat-find-from-view pack --pack-destination "$PWD/dist"
 pnpm --filter context-headroom pack --pack-destination "$PWD/dist"
 pnpm --filter human-tokens pack --pack-destination "$PWD/dist"
 pnpm --filter session-location pack --pack-destination "$PWD/dist"
@@ -78,6 +82,7 @@ pnpm run hooks:install
 paseo-plugins/
   plugins/
     aio-quota/
+    chat-find-from-view/
     context-headroom/
     human-tokens/
     session-location/

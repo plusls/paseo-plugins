@@ -1,0 +1,7 @@
+{
+  "id": "chat-find-from-view",
+  "media": [],
+  "requirements": {
+    "paseo": ">=0.17.1"
+  }
+}
